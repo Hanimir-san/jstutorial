@@ -43,3 +43,52 @@ alert(userActions.sayBye.name);
 let arr = [function() {}];
 
 alert(arr[0].name);
+
+
+// Function objects can also have the length of their parameters
+
+let greeting1 = function (phrase, name) {
+    alert(`${phrase} ${name}!`);
+}
+
+alert(greeting1.length)
+
+// rest parameters in a function will not be counted
+let greeting2 = function (phrase, ...names) {
+    alert(`${phrase} ${names}!`);
+}
+
+alert(greeting1.length);
+alert(greeting2.length);
+
+
+// custom function properties can be defined too
+
+let greet4 = function () {
+    alert('Hello!');
+    greet4.counter++;
+}
+
+greet4.counter = 0;
+greet4();
+alert(greet4.counter);
+greet4();
+alert(greet4.counter);
+
+greet4()
+
+// We can use this behavior to rewrite closures
+
+let makeCounter = function () {
+    let counter = function () {
+        return counter.count++
+    }
+    counter.count = 0;
+
+    return counter;
+}
+
+let counter = makeCounter();
+
+alert(counter());
+alert(counter());
