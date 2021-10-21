@@ -92,3 +92,65 @@ let counter = makeCounter();
 
 alert(counter());
 alert(counter());
+
+
+// function expressions can also have names
+
+let greet5 = function(person) {
+    alert(`hello ${person}!`);
+}
+
+let greet6 = function func(person) {
+    alert(`hello ${person}!`);
+}
+
+// A function thus named can reference itself via that name
+// "func" here will not be visible outside the function scope
+// We could normally call "greet7" from the outer lexical record
+// But if it is assigned to another variable, that relationship breaks
+
+let greet7 = function func(person) {
+    if (person) {
+        alert(`Hello ${person}`);
+    } else {
+        func('Guest');
+    }
+}
+
+greet7();
+
+// When referencing a function expression within itself, better give it a name right away
+// Don't cause bugs by playing with scopes unnecessarilly 
+
+
+
+// DIY exercises
+
+let makeCounter2 = function () {
+    let counter2 = function () {
+        return counter2.count++
+    }
+    counter2.count = 0;
+    counter2.set = function (number) {
+        counter2.count = number;
+    }
+    counter2.decrease = function (number) {
+        counter2.count--;
+    }
+
+    return counter2;
+}
+
+let counter2 = makeCounter2();
+
+alert(counter2());
+alert(counter2());
+counter2.set(5);
+counter2.decrease(2);
+alert(counter2());
+
+let sum = function func () {
+    return null;
+};
+
+//sum(0)(1)(2)(3)(4)(5) == 15
