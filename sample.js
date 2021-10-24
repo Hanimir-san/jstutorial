@@ -149,8 +149,18 @@ counter2.set(5);
 counter2.decrease(2);
 alert(counter2());
 
-let sum = function func () {
-    return null;
+let sum = function func (a) {
+    func.result = a;
+
+    let f = function (b) {
+        func.result += b;
+        return f;
+    }
+    
+    f.toString = () => {return func.result};
+
+    return f;
 };
 
-//sum(0)(1)(2)(3)(4)(5) == 15
+let out = sum(0)(1)(2)(3)(4)(5);
+alert(out);
