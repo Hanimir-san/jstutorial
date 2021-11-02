@@ -1,62 +1,100 @@
 `use strict`;
 
+// We can use decorator functions to change the behavior of other existing functions
+// e.g. if there is a function that is stable and returns predictable results, we can cache it
 
-// the setTimeout function can run a function after a certain amount of time
-let greet = (phrase, name) => alert(`${phrase} ${name}!`); 
-
-//setTimeout(greet, 1000, 'hello', 'user');
-
-// setTimeout will return a timer identifier with which it can be cancelled if necessary
-// After cancellation, the id is preserved
-//greetTimerId = setTimeout(greet, 10000, 'hello', 'user');
-//clearTimeout(greetTimerId);
-
-//alert(greetTimerId);
-
-
-// setInterval follows the same syntax and calls a function over and over
-//greetIntervalId = setInterval(greet, 2000, 'hello', 'world');
-
-// We can then schedule clearInterval to stop the loop after 10 seconds
-// setTimeout(() => { clearInterval(greetIntervalId); alert('stopped execution'); }, 10000);
-
-
-// To run a task regularly we can also define nested setTimeout
-
-let num = 0;
-
-//let countTimerId = setTimeout(function count () {
-//    num += 1;
-//    alert(num);
-//    countTimerId = setTimeout(count, 2000); 
-//}, 2000);
-
-
-// DIY tasks
-
-let printNumbersInterval = function (from, to){
-    count = from
-    countIntervalId = setInterval(function () {
-        console.log(count);
-        count++;
-        if (count==(to+1)) {
-            clearInterval(countIntervalId);
-        }
-    }, 1000);
+let pow = function (x) {
+    return x*x;
 }
 
-let printNumbersNested = function (from, to){
-    count = from
-    let increaseCount = function () {
-        console.log(count);
-        count++;
+let cachingDecoration = function(func) {
+    let cache = new Map();
+
+    return function(x) {
+        if (cache.has(x)) {
+            console.log("Returning from cache.")
+            console.log(cache);
+            return cache.get(x);
+        }
+
+        let result = func(x);
+
+        cache.set(x, result);
+        return result
     }
-    let countTimerId = setTimeout(function countTimer() {
-        increaseCount();
-        if (count < to+1) {
-            countTimerId = setTimeout(countTimer, 1000);
-        }
-    });
 }
 
-printNumbersInterval(1, 10);
+result = cachingDecoration(pow);
+
+// the first result will be calculated normally
+alert(result(10));
+// next time, it will be taken from cache
+alert(result(10));
+
+alert(result(20));
+alert(result(20));
+
+
+// The call method of function prototype can be used to pass an explicit "this" to a function
+let user = {'name': 'root', 'id': 0}
+
+let getUsername = function (phrase) {
+    alert(`${phrase} ${this.name}`);
+}
+
+getUsername.call(user, 'hello');
+
+
+let numbers = {
+    'number': 5,
+    getNumber: function () { 
+        return this.number 
+    },
+    getPow: function (a) {
+        return a * this.getNumber() 
+    },
+}
+
+let numberCache = function (func) {
+    let cache = new Map();
+    return function(a) {
+        if (cache.has(a)) {
+            return cache.get(a);
+        }
+        let result = func.call(numbers, a);
+        cache.set(a, result);
+        console.log(cache);
+        return result;
+    }
+}
+
+numbers.getPow = numberCache(numbers.getPow);
+alert( numbers.getPow(20) );
+
+
+// For multi argument functions we use hashing
+
+let add = function(a, b) {
+    return a+b;
+}
+
+let addCache = function (func) {
+    let cache = new Map();
+    return function() {
+        const key = hash(arguments);
+        if (cache.has(key)) {
+            return cache.get(key);
+        }
+
+        let result = func(...arguments);
+        cache.set(key, result);
+        return result;
+    }
+}
+
+function hash(args) {
+    return args[0] + ',' + args[1];
+  }
+
+result = addCache(add);
+alert(result(5, 5));
